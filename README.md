@@ -66,6 +66,7 @@ IV. Pagina site-ului
 Spre deosebire de celelalte paginii, formatarea acestei ferestre se bazeaza pe **HTML** sursa a fiecarui site. 
 In susul paginii, centrat si boldat se afla titulul, apoi continutul site-ului.
 Culorile se bazeaza pe un element **CSS** din cadrul fisierului .html (in cazul in care acesta lipseste se foloseste schema clasica negru pe alb).
+La apasarea tastei **B** se revine la pagina de rezultate.
 
 
 
