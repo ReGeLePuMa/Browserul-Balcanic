@@ -6,7 +6,7 @@ Browserul balcanic reprezinta solutia proprie pentru rezolvarea temei 2 (https:/
 
 Implementarea este realizata cu ajutorul bibliotecii **NCurses** (https://invisible-island.net/ncurses/man/ncurses.3x.html) si limbajului de programare **C**, iar functionalitatea acestuia se bazeaza pe cele 4 task-uri precedente (task1.c task2.c task3.c task4.c).
 
-Pentru a instala **NCurses** pe un sistem linux tip *Debian* rulati comanda
+Pentru a instala **NCurses** pe un sistem linux tip *Debian* rulati comanda:
 ```
 sudo apt-get install libncurses5-dev
 ```
