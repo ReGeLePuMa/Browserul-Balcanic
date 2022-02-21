@@ -11,7 +11,7 @@ Pentru a instala **NCurses** pe un sistem linux tip *Debian* rulati comanda:
 sudo apt-get install libncurses5-dev
 ```
 
-Pentru a compila browseruk rulati comanda:
+Pentru a compila browserul rulati comanda:
 ```
 make browser
 ```
