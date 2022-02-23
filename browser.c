@@ -34,7 +34,7 @@ typedef enum {black,white,red,green,blue,yellow}culori;
 typedef struct 
 {
     char url[201], titlu[201], culoare_fundal[10], culoare_text[10];
-    char *continut;
+    char *continut,*html;
     int nr_accs, checksum;
 }site;
 
@@ -172,8 +172,14 @@ site *formatare(int *cap, int *size)
                 }
                 //Alocam memorie pentru continut si cod HTML cu marimea fisierului aflata anterior
                 browser[*(size)].continut=(char *)malloc(marime_fisier*sizeof(char));
+                browser[*(size)].html=(char *)malloc((marime_fisier+5)*sizeof(char));
                 cat=(char *)malloc(marime_fisier*sizeof(char));
             }
+            if(nr_linie==1)
+            {
+                strcpy(browser[*(size)].html,linie);
+            }
+            else strcat(browser[*(size)].html,linie);
             if(nr_linie>0 && strstr(linie,"<p"))
             {
                 //Vedem daca am gasit linia cu tag-ul de inceput de paragraf.
@@ -500,7 +506,7 @@ void draw_warning_screen(WINDOW *fereastra, site sait, int *tasta)
     init_pair(5,COLOR_WHITE,COLOR_RED);
     wbkgd(fereastra,COLOR_PAIR(5));
     wattron(fereastra,A_BOLD);
-    mvwprintw(fereastra,inaltime/2,latime/2-34,"Warning, malicious website! Official key: %d. Found key: %d\n",sait.checksum,checksum(sait.continut));
+    mvwprintw(fereastra,inaltime/2,latime/2-34,"Warning, malicious website! Official key: %d. Found key: %d\n",sait.checksum,checksum(sait.html));
     wattroff(fereastra,A_BOLD);
     mvwprintw(fereastra,inaltime/2+7,latime/2+30,"LEGENDA:\n");
     mvwprintw(fereastra,inaltime/2+8,latime/2+15,"ENTER: Intrati in site\n");
@@ -720,7 +726,7 @@ int main()
 {
     site *browser, *browser_filtrat;
     WINDOW *ecran;
-    int size, cap, tasta, marime, k, id, tasta3;
+    int size, cap, tasta, marime, k, id, tasta2;
     char cautare[101], **cuvinte;
     browser=formatare(&cap, &size);
     browser_filtrat=(site *)malloc((size+1)*sizeof(site)); 
@@ -757,7 +763,7 @@ int main()
         draw_menu_screen(ecran,browser_filtrat, k, &tasta, &id);
     }
     /*
-      Pentru a creea ciclul infinit CAUTA <-> MENIU <-> SITE
+      Pentru a creea ciclul infinit CAUTA <-> MENIU <-> VERIFCA CHECKSUM <-> SITE
       vom retine ultimele 2 taste apasate in tasta si tasta2 
       Astfel, secventa din while se traduce astfel:
         - Daca avem 'ENTER' in tasta2 si tasta 'b' inseamna ca suntem in pagina
@@ -767,46 +773,56 @@ int main()
         - Din pagina de cautare, mergem secvential in ferestrele urmatoare, unde vom 
         restarta ciclul
     */
-    tasta3=0;
+    tasta2=0;
     if(tasta=='\n')
     {
-        if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].continut))
+        if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].html))
         {
             draw_warning_screen(ecran,browser_filtrat[id],&tasta);
+            if(tasta=='\n')
+            {
+                draw_site_screen(ecran, browser_filtrat[id], &tasta);
+            }
+            if(tasta=='b')
+            {
+                draw_menu_screen(ecran,browser_filtrat,k,&tasta2,&id);
+            }
         }
-        if(tasta=='\n')
+        else 
         {
-            draw_site_screen(ecran, browser_filtrat[id], &tasta);
-        }
-        if(tasta=='b')
-        {
-            draw_menu_screen(ecran,browser_filtrat,k,&tasta3,&id);
+            draw_site_screen(ecran,browser_filtrat[id],&tasta);
+            draw_menu_screen(ecran,browser_filtrat,k,&tasta2,&id);
         }
     }
     while(tasta=='b')
     {
-        if(tasta3!='\n')
+        if(tasta2!='\n')
         {
             draw_search_screen(ecran,&tasta,cautare);
         } 
         else 
         {   
-           while(tasta3=='\n')
+           while(tasta2=='\n')
            {
-                if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].continut))
+                if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].html))
                 {
                     draw_warning_screen(ecran,browser_filtrat[id],&tasta);
+                    if(tasta=='\n')
+                    {
+                        draw_site_screen(ecran, browser_filtrat[id], &tasta);
+                    }
+                    if(tasta=='b')
+                    {
+                        draw_menu_screen(ecran,browser_filtrat,k,&tasta2,&id);
+                    }
                 }
-                if(tasta=='\n')
+                else 
                 {
-                    draw_site_screen(ecran, browser_filtrat[id], &tasta);
-                }
-                if(tasta=='b')
-                {
-                    draw_menu_screen(ecran,browser_filtrat,k,&tasta3,&id);
+                    draw_site_screen(ecran,browser_filtrat[id],&tasta);
+                    draw_menu_screen(ecran,browser_filtrat,k,&tasta2,&id);
                 }
            }
-           if(tasta3=='b')
+           if(tasta2=='b')
            {
                 draw_search_screen(ecran,&tasta,cautare); 
            }
@@ -825,17 +841,22 @@ int main()
         }
         if(tasta=='\n')
         {
-            if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].continut))
+            if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].html))
             {
                 draw_warning_screen(ecran,browser_filtrat[id],&tasta);
+                if(tasta=='\n')
+                {
+                    draw_site_screen(ecran, browser_filtrat[id], &tasta);
+                }
+                if(tasta=='b')
+                {
+                    draw_menu_screen(ecran,browser_filtrat,k,&tasta2,&id);
+                }
             }
-            if(tasta=='\n')
+            else 
             {
-                draw_site_screen(ecran, browser_filtrat[id], &tasta);
-            }
-            if(tasta=='b')
-            {
-                draw_menu_screen(ecran,browser_filtrat,k,&tasta3,&id);
+                draw_site_screen(ecran,browser_filtrat[id],&tasta);
+                draw_menu_screen(ecran,browser_filtrat,k,&tasta2,&id);
             }
         }
     }
