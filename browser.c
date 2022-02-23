@@ -407,6 +407,122 @@ void filtrare_site_advanced(site *browser_filtrat, int *k, site *browser, int si
     }
 }
 
+//Functie ce transforma un numar din decimal in binar si il pune intr-un vector
+void dec_to_bin(int n,int s[])
+{
+	int i;
+	for(i=0;i<8;i++)
+	{
+		s[i]=0;
+	}
+	i=7;
+	while(n)
+	{
+		s[i]=n%2;
+		i--; 
+		n/=2;
+	}
+}
+
+//Functie ce transforma un numar stocat in format vectorial din binar in zecimal
+int bin_to_dec(int s[])
+{
+	int nr=0,i;
+	for(i=7; i>=0;i--)
+	{
+		nr+=(s[i]*(1<<(7-i))); 
+    }
+	return nr;
+}
+
+//Functie ce roteste bitii caracterului x cu k pozitii la stanga
+int rotl(char x, int k)
+{
+    int i, j, n, nr[9], aux;
+    n=(int)x;
+    dec_to_bin(n,nr);
+    for(i=1;i<=k;i++)
+    {
+        aux=nr[0]; //stocam prima valoare
+        for(j=1;j<8;j++)
+        {
+            nr[j-1]=nr[j]; //mutam la stanga cu 1 pozitie fiecare casuta ce permite aceasta operatie
+        }
+        nr[7]=aux; //punem in ultima casuta prima valoare
+    }
+    return (bin_to_dec(nr));
+}
+
+//Functie ce roteste bitii caracterului x cu k pozitii la dreapta
+int rotr(char x, int k)
+{
+    int i, j, n, nr[9], aux;
+    n=(int)x;
+    dec_to_bin(n,nr);
+    for(i=1;i<=k;i++)
+    {
+        aux=nr[7]; //stocam ultima valoare
+        for(j=7;j>=1;j--)
+        {
+            nr[j]=nr[j-1]; //mutam la dreapta cu 1 pozitie fiecare casuta ce permite aceasta operatie
+        }
+        nr[0]=aux; //punem in prima casuta ultima valoare
+    }
+    return (bin_to_dec(nr));
+} 
+
+//Functie ce calculeaza checksum-ul unui site dupa formula
+int checksum(char *s)
+{
+    int sum, i;
+    sum=rotl(s[0],0);
+    for(i=1;i<strlen(s);i++)
+    {
+        //Daca pozitia este impara facem XOR cu bitii caracterul rotiti la dreapta cu pozitia lui in sir 
+        if(i%2==1)
+        {
+            sum^=(rotr(s[i],i));
+        }
+        //Daca pozitia  este para facem XOR cu bitii caracterul rotiti la stanga cu pozitia lui in sir
+        else sum^=(rotl(s[i],i));
+    }
+    return sum;
+}
+
+//Functie ce afiseaza un ecran de avertizare in cazul in care checksum-ul difera
+void draw_warning_screen(WINDOW *fereastra, site sait, int *tasta)
+{
+    int latime, inaltime, ok;
+    getmaxyx(fereastra,inaltime,latime);
+    wclear(fereastra);
+    wrefresh(fereastra);
+    noecho();
+    init_pair(5,COLOR_WHITE,COLOR_RED);
+    wbkgd(fereastra,COLOR_PAIR(5));
+    wattron(fereastra,A_BOLD);
+    mvwprintw(fereastra,inaltime/2,latime/2-34,"Warning, malicious website! Official key: %d. Found key: %d\n",sait.checksum,checksum(sait.continut));
+    wattroff(fereastra,A_BOLD);
+    mvwprintw(fereastra,inaltime/2+7,latime/2+30,"LEGENDA:\n");
+    mvwprintw(fereastra,inaltime/2+8,latime/2+15,"ENTER: Intrati in site\n");
+    mvwprintw(fereastra,inaltime/2+9,latime/2+15,"b: Inapoi la menu\n");
+    ok=0;
+    //Daca utilizatorul apasa oricare alta tasta decat cea din LEGENDA
+    //browserul nu va face nimic, altfel iesim din ecran
+    do
+    {
+        (*tasta)=wgetch(fereastra);
+        if((*tasta)=='\n')
+        {
+            return;
+        }
+        if((*tasta)=='b')
+        {
+            return;
+        }
+
+    }while(!ok);
+}
+
 //Functie ce afiseaza pagina web a site-ului
 void draw_site_screen(WINDOW *fereastra, site sait, int *tasta)
 {
@@ -433,7 +549,6 @@ void draw_site_screen(WINDOW *fereastra, site sait, int *tasta)
             return;
         }
     } while(!ok);
-    
 }
 
 //Functie ce afiseaza fereastra de meniu cu site-urile filtrate
@@ -605,7 +720,7 @@ int main()
 {
     site *browser, *browser_filtrat;
     WINDOW *ecran;
-    int size, cap, tasta, marime, k, id, tasta2;
+    int size, cap, tasta, marime, k, id, tasta3;
     char cautare[101], **cuvinte;
     browser=formatare(&cap, &size);
     browser_filtrat=(site *)malloc((size+1)*sizeof(site)); 
@@ -652,42 +767,76 @@ int main()
         - Din pagina de cautare, mergem secvential in ferestrele urmatoare, unde vom 
         restarta ciclul
     */
-    tasta2=0;
+    tasta3=0;
     if(tasta=='\n')
     {
-        tasta2='\n';
-        draw_site_screen(ecran, browser_filtrat[id], &tasta);
+        if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].continut))
+        {
+            draw_warning_screen(ecran,browser_filtrat[id],&tasta);
+        }
+        if(tasta=='\n')
+        {
+            draw_site_screen(ecran, browser_filtrat[id], &tasta);
+        }
+        if(tasta=='b')
+        {
+            draw_menu_screen(ecran,browser_filtrat,k,&tasta3,&id);
+        }
     }
     while(tasta=='b')
     {
-        if(tasta2!='\n')
+        if(tasta3!='\n')
         {
             draw_search_screen(ecran,&tasta,cautare);
-            tasta2='\n';
         } 
         else 
-        {
-            draw_menu_screen(ecran,browser_filtrat, k, &tasta, &id);
-            tasta2=0;
+        {   
+           while(tasta3=='\n')
+           {
+                if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].continut))
+                {
+                    draw_warning_screen(ecran,browser_filtrat[id],&tasta);
+                }
+                if(tasta=='\n')
+                {
+                    draw_site_screen(ecran, browser_filtrat[id], &tasta);
+                }
+                if(tasta=='b')
+                {
+                    draw_menu_screen(ecran,browser_filtrat,k,&tasta3,&id);
+                }
+           }
+           if(tasta3=='b')
+           {
+                draw_search_screen(ecran,&tasta,cautare); 
+           }
         }
         if(tasta=='a')
         {
             cuvinte=query(cautare, &marime);
             filtrare_site_advanced(browser_filtrat, &k, browser, size, cuvinte, marime);
             draw_menu_screen(ecran,browser_filtrat, k, &tasta, &id);
-            tasta2=0;
         }
         else if(tasta =='s')
         {
             cuvinte=query(cautare, &marime);
             filtrare_site_simple(browser_filtrat, &k, browser, size, cuvinte, marime);
             draw_menu_screen(ecran,browser_filtrat, k, &tasta, &id);
-            tasta2=0;
         }
         if(tasta=='\n')
         {
-            draw_site_screen(ecran, browser_filtrat[id], &tasta);
-            tasta2='\n';
+            if(browser_filtrat[id].checksum!=checksum(browser_filtrat[id].continut))
+            {
+                draw_warning_screen(ecran,browser_filtrat[id],&tasta);
+            }
+            if(tasta=='\n')
+            {
+                draw_site_screen(ecran, browser_filtrat[id], &tasta);
+            }
+            if(tasta=='b')
+            {
+                draw_menu_screen(ecran,browser_filtrat,k,&tasta3,&id);
+            }
         }
     }
     endwin(); //inchidem ecranul
