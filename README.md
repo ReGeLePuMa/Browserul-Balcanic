@@ -32,7 +32,7 @@ I. Pagina de pornire
 
 ![ecran1](https://user-images.githubusercontent.com/93268175/154868653-518c3010-be2d-4a6f-a572-06cecace34b0.JPG)
 
-Pagina de pornire este bazata pe steagul statului cvasi-independent Kosovo (nu este recunoscut de Romania). 
+Pagina de pornire este bazata pe steagul statului cvasi-independent *Kosovo* (nu este recunoscut de Romania). 
 Sunt afisate numele aplicatiei, autorul precum si o lista cu comenzile valabile pe acea pagina.
 Prin apasarea tastei **Q** se iese din aplicatie iar prin apasarea taste **C** se intra in modul de cautare.
 
@@ -40,7 +40,7 @@ II. Pagina de cautare
 
 ![ecran2](https://user-images.githubusercontent.com/93268175/154868882-94b82992-3de5-485e-b33e-f4d872bd5dc6.JPG)
 
-Pagina de cautare este bazata pe steagul Albaniei.
+Pagina de cautare este bazata pe steagul *Albaniei*.
 In cadrul acestei paginii, utilizatorul poate introduce un sir de caractere in bara de cautare pentru a gasi site-uri ce contin acel sir.
 La fel ca si in pagina precedenta avem o lista de comenzi.
 Dupa introducerea sirului, acesta are posibilitatea de a alege o cautare simpla prin apasarea tastei **S** sau o cautare avansata prin apasarea tastei **A**.
@@ -53,13 +53,21 @@ III. Pagina de rezultate
 
 ![meniu](https://user-images.githubusercontent.com/93268175/154869199-c97d8bb5-a0e8-42a9-833f-0d576dec8284.JPG)
 
-Pagina de rezultate este bazata pe steagul Greciei.
+Pagina de rezultate este bazata pe steagul *Greciei*.
 Se vor afisa **URL**-urile site-urilor rezultate cautarii de pe pagina anteroara.
 Prin folosirea sagetilor **↑** si **↓** se poate naviga prin meniu.
 Folosind tasta **ENTER** se intra in pagina selectata.
 La apasarea tastei **B** se intoarce la pagina de cautare.
 
-IV. Pagina site-ului
+IV. Pagina de avertizare
+
+![ecran5](https://user-images.githubusercontent.com/93268175/155258580-b713d6a8-6747-4197-884c-0217a94500c5.JPG)
+
+Pagina de avertizare este baza pe steagul *Turciei*.
+Aceasta pagina va fi afisata doar daca checksum-ul site-ului din fisierul **.html** difera de cel calculat.
+Va aparea un mesaj ce avertizeaza utilizatorul ca site-ul ar putea fi unul malitios.
+
+V. Pagina site-ului
 
 ![ecran4](https://user-images.githubusercontent.com/93268175/154869376-a112bb81-a374-4b31-9b96-f82f53faf30c.JPG)
 
@@ -67,6 +75,7 @@ Spre deosebire de celelalte paginii, formatarea acestei ferestre se bazeaza pe *
 In susul paginii, centrat si boldat se afla titulul, apoi continutul site-ului.
 Culorile se bazeaza pe un element **CSS** din cadrul fisierului .html (in cazul in care acesta lipseste se foloseste schema clasica negru pe alb).
 La apasarea tastei **B** se revine la pagina de rezultate.
+
 
 
 
